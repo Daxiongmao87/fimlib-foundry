@@ -1,0 +1,30 @@
+{
+  "id": "fimlib",
+  "title": "FIMLib",
+  "description": "A compact instant messaging library for FoundryVTT modules",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "10",
+    "verified": "11"
+  },
+  "authors": [
+    {
+      "name": "Your Name",
+      "url": "https://github.com/yourusername"
+    }
+  ],
+  "esmodules": [
+    "src/main.js",
+    "src/components/ChatModal.js",
+    "src/components/TabManager.js"
+  ],
+  "styles": [
+    "src/styles/chat-modal.css"
+  ],
+  "templates": [
+    "src/templates/chat-modal.html"
+  ],
+  "url": "https://github.com/yourusername/fimlib",
+  "manifest": "https://raw.githubusercontent.com/yourusername/fimlib/main/module.json",
+  "download": "https://github.com/yourusername/fimlib/releases/download/v1.0.0/fimlib-v1.0.0.zip"
+} 
