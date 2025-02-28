@@ -14,6 +14,8 @@ export class ChatModal extends FormApplication {
     title: "Chat",
     messages: [],
     tabs: [],
+    placeholder: "Type a message...",
+    sendIcon: "fas fa-paper-plane"
   };
 
   static get defaultOptions() {
@@ -88,8 +90,19 @@ export class ChatModal extends FormApplication {
     textarea.on('focus', () => parentDiv.addClass('focused'));
     textarea.on('blur', () => parentDiv.removeClass('focused'));
     
-    this._updateMessageListGradients(messageContainer[0]);
+    // Immediately scroll to bottom
+    if (messageContainer.length) {
+      messageContainer[0].scrollTop = messageContainer[0].scrollHeight;
+    }
+    
+    // Always update gradients when scrolling
     messageContainer.on('scroll', (e) => this._updateMessageListGradients(e.currentTarget));
+    
+    // Also update the gradients immediately, and after a short delay to catch rendering
+    if (messageContainer.length) {
+      this._updateMessageListGradients(messageContainer[0]);
+      setTimeout(() => this._updateMessageListGradients(messageContainer[0]), 100);
+    }
   }
 
   /**
@@ -204,6 +217,17 @@ export class ChatModal extends FormApplication {
    * @returns {Promise} - A promise which resolves once the application is closed
    */
   close(options={}) {
+    // Clean up the observer when closing
+    if (this._messageObserver) {
+      this._messageObserver.disconnect();
+      this._messageObserver = null;
+    }
+    
+    // Remove the resize listener when closing
+    if (this._boundUpdateGradients) {
+      $(window).off('resize.chatModal', this._boundUpdateGradients);
+    }
+    
     return super.close(options);
   }
 
@@ -212,9 +236,6 @@ export class ChatModal extends FormApplication {
    * @param {Object} message - The message to add
    * @param {string} message.content - The message content
    * @param {string} message.sender - The sender's name
-   * @param {string} [message.cornerText] - Optional text to display in the top-right corner
-   * @param {string} [message.img] - Avatar image path
-   * @param {string} [message.subtitle] - Optional subtitle text
    * @param {boolean} [render=true] - Whether to re-render the chat window
    */
   addMessage(message, render = true) {
@@ -232,14 +253,99 @@ export class ChatModal extends FormApplication {
     
     if (render) {
       this.render();
+    }
+  }
+
+  /**
+   * Override the render method to properly handle post-render operations
+   * @override
+   */
+  async render(force=false, options={}) {
+    const result = await super.render(force, options);
+    
+    // Setup a MutationObserver to detect when messages are actually in the DOM
+    if (this.element && !this._messageObserver) {
+      const messageContainer = this.element.find('.chat-messages.message-list')[0];
+      if (messageContainer) {
+        // Create an observer to watch for changes to the message list
+        this._messageObserver = new MutationObserver((mutations) => {
+          // Scroll to bottom and apply gradients when messages change
+          this._scrollToBottom(messageContainer);
+          this._updateMessageListGradients(messageContainer);
+        });
+        
+        // Start observing the message container for changes
+        this._messageObserver.observe(messageContainer, { 
+          childList: true,
+          subtree: true
+        });
+        
+        // Initial scroll to bottom
+        this._scrollToBottom(messageContainer);
+      }
+    } else if (this.element) {
+      // If we already have an observer but are re-rendering
+      const messageContainer = this.element.find('.chat-messages.message-list')[0];
+      if (messageContainer) {
+        // Manually trigger scroll to bottom
+        this._scrollToBottom(messageContainer);
+      }
+    }
+    
+    return result;
+  }
+
+  /**
+   * Helper method to scroll a container to the bottom
+   * @private
+   * @param {HTMLElement} container - The container to scroll
+   */
+  _scrollToBottom(container) {
+    if (!container) return;
+    
+    // Use RAF to ensure we're in the next paint cycle when heights should be accurate
+    requestAnimationFrame(() => {
+      // Set scroll position to bottom
+      container.scrollTop = container.scrollHeight;
+      // Force gradient update
+      this._updateMessageListGradients(container);
+      
+      // Double-check after a short delay to ensure content has fully rendered
       setTimeout(() => {
-        const messageList = this.element.find('.chat-messages.message-list');
-        if (messageList.length) {
-          messageList[0].scrollTop = messageList[0].scrollHeight;
-          this._updateMessageListGradients(messageList[0]);
+        if (container && document.body.contains(container)) {
+          container.scrollTop = container.scrollHeight;
+          this._updateMessageListGradients(container);
         }
       }, 50);
-    }
+    });
+  }
+
+  /**
+   * Schedule multiple gradient updates to ensure they're applied correctly
+   * @private
+   * @param {HTMLElement} container - The message container
+   */
+  _scheduleGradientUpdates(container) {
+    // Check right away
+    this._updateMessageListGradients(container);
+    
+    // Check several times over a period to ensure rendering completes
+    // These intervals cover different phases of DOM rendering
+    const checkTimes = [50, 100, 250, 500, 1000];
+    
+    checkTimes.forEach(time => {
+      setTimeout(() => {
+        if (this.element && document.body.contains(container)) {
+          // Ensure scroll position is maintained at bottom
+          container.scrollTop = container.scrollHeight;
+          // Apply gradient with current dimensions
+          this._updateMessageListGradients(container);
+          
+          // Force a style recalculation to help with rendering
+          void container.offsetHeight;
+        }
+      }, time);
+    });
   }
 
   /**
@@ -251,7 +357,13 @@ export class ChatModal extends FormApplication {
     if (!container) return;
     
     const parentContainer = container.closest('.foundry-im.chat-messages-container');
-    const hasOverflow = container.scrollHeight > container.clientHeight;
+    if (!parentContainer) return;
+    
+    // Force style recalculation to get accurate dimensions
+    void container.offsetHeight;
+    
+    // Calculate if content actually overflows
+    const hasOverflow = Math.ceil(container.scrollHeight) > Math.floor(container.clientHeight);
     const maxOpacity = 0.8;
     
     if (!hasOverflow) {
@@ -273,24 +385,41 @@ export class ChatModal extends FormApplication {
     
     parentContainer.style.setProperty('--msg-top-gradient-opacity', topOpacity);
     parentContainer.style.setProperty('--msg-bottom-gradient-opacity', bottomOpacity);
+    
+    // Debug info - uncomment if needed for troubleshooting
+    // console.log(`Gradient update: hasOverflow=${hasOverflow}, scrollHeight=${container.scrollHeight}, clientHeight=${container.clientHeight}, topOpacity=${topOpacity}, bottomOpacity=${bottomOpacity}`);
   }
 
   /**
-   * Override the render method to ensure gradients are initialized
+   * Fix for CSS issue with the window-resizable-handle
+   */
+  _updateCSS() {
+    // Fix the CSS issue with the resize handle if it exists
+    const resizeHandle = document.querySelector('#foundry-im-chat-modal .window-resizable-handle');
+    if (resizeHandle) {
+      resizeHandle.style.color = 'var(--color-text-dark)';
+      resizeHandle.style.overflow = 'hidden';
+    }
+  }
+
+  /**
+   * This runs when the application is rendered
    * @override
    */
-  async render(force=false, options={}) {
-    const result = await super.render(force, options);
+  _renderInner(data) {
+    const html = super._renderInner(data);
     
-    if (this.element) {
-      const messageList = this.element.find('.chat-messages.message-list');
-      if (messageList.length) {
-        messageList[0].scrollTop = messageList[0].scrollHeight;
-        this._updateMessageListGradients(messageList[0]);
+    // Add a hook to run immediately after rendering completes
+    Hooks.once('renderChatModal', (app, html) => {
+      const messageContainer = html.find('.chat-messages.message-list');
+      if (messageContainer.length) {
+        messageContainer[0].scrollTop = messageContainer[0].scrollHeight;
+        this._updateMessageListGradients(messageContainer[0]);
+        this._updateCSS();
       }
-    }
+    });
     
-    return result;
+    return html;
   }
 }
 

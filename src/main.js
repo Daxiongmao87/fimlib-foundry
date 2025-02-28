@@ -1,3 +1,9 @@
+/**
+ * FoundryIM Library Entry Point
+ * Initializes the chat modal and tab manager components and exposes them globally
+ * for use by other modules.
+ */
+
 import { ChatModal } from './components/ChatModal.js';
 import { TabManager } from './components/TabManager.js';
 

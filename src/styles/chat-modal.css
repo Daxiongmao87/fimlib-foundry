@@ -1,77 +1,17 @@
-/**
- * Module: FoundryIM - Instant Messaging UI Component for FoundryVTT
- *
- * Overview:
- * This module is a vanilla JavaScript implementation of a compact, instant messaging interface
- * designed for FoundryVTT. Inspired by legacy messengers like AIM and MSN Messenger, it provides
- * a sleek, tab-based chat window complete with a conversation display and message input area.
- * It is structured to be integrated as a Git submodule into other FoundryVTT modules.
- *
- * Repository Structure:
- * ├── src/
- * │   ├── components/
- * │   │   ├── ChatModal.js      // Implements the core chat modal: handles rendering,
- * │   │   │                         user input, message display, and modal lifecycle
- * │   │   │                     // (open, close, minimize).
- * │   │   └── TabManager.js     // Manages multiple conversation tabs: dynamic addition,
- * │   │                             switching, and removal of tabs.
- * │   ├── styles/
- * │   │   └── chat-modal.css    // Contains all CSS styling to recreate the compact IM look.
- * │   ├── templates/
- * │   │   └── chat-modal.html   // (Optional) HTML templates for dynamic UI rendering.
- * ├── module.json               // FoundryVTT module manifest for registration and configuration.
- * ├── README.md                 // Documentation detailing integration, configuration, and API usage.
- * └── package.json              // (Optional) For dependency management if additional libraries are needed.
- *
- * Key Features:
- * 1. ChatModal Component:
- *    - Provides a compact interface with a conversation view and message input field.
- *    - Manages user interactions such as sending messages, scrolling through conversations,
- *      and modal transitions (open/minimize/close).
- *    - Designed to be responsive and easy to integrate.
- *
- * 2. TabManager Component:
- *    - Supports multiple chat tabs within a single modal, enabling separate conversation streams.
- *    - Offers a simple API for dynamically adding, switching, and removing tabs.
- *    - Seamlessly integrates with ChatModal to display the active conversation while preserving inactive ones.
- *
- * Integration & Customization:
- * - Designed to be added as a Git submodule, allowing other FoundryVTT modules to include and leverage its functionality.
- * - No transpiling or build process is required; files can be loaded directly from the src folder.
- * - Configuration options are exposed via initialization parameters or FoundryVTT settings to enable features like:
- *      • Multi-tab functionality
- *      • Theme customization
- *      • UI behavior adjustments (e.g., auto-scroll, message persistence)
- * - A fully documented API in the README provides clear instructions for extending or overriding default behavior.
- *
- * Usage:
- * - Add this module as a Git submodule in your FoundryVTT project.
- * - Reference the necessary JavaScript and CSS files directly in your module manifest (module.json).
- * - Initialize the ChatModal and TabManager components in your module's entry point to set up the chat interface.
- *
- * Revision History:
- * - [Version x.y.z]: [Date] - Initial design and implementation.
- *
- * This design instruction provides the complete blueprint for the FoundryIM module. It should be
- * included at the top of each component or script to ensure that developers have full context on the
- * structure, functionality, and integration approach for this instant messaging system.
- */
-
-/* Remove fixed positioning since FormApplication handles it */
 .foundry-im.chat-modal {
     z-index: 100;
     min-width: 300px;
     min-height: 300px;
 }
 
-/* Content container */
+
 .chat-content {
     display: flex;
     flex-direction: column;
     height: 100%;
 }
 
-/* Message list container */
+
 .chat-messages.message-list {
     flex: 1;
     overflow-y: auto;
@@ -81,7 +21,7 @@
     flex-direction: column;
 }
 
-/* Individual message styling */
+
 .chat-message.message {
     margin-bottom: 8px;
     padding: 8px;
@@ -131,14 +71,14 @@ foundry-im.message-content {
     word-break: break-word;
 }
 
-/* Input area styling */
+
 .chat-input.editor.flexrow {
     padding: 8px;
     gap: 8px;
     background: rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: flex-end;
-    position: relative; /* For gradient positioning */
+    position: relative; 
     border: 1px solid var(--color-border-dark);
     border-radius: 3px;
 }
@@ -146,8 +86,8 @@ foundry-im.message-content {
 textarea.chat-input {
     flex: 1;
     min-width: 0;
-    min-height: 2.4em; /* One line + padding */
-    max-height: 7.2em; /* Three lines + padding */
+    min-height: 2.4em; 
+    max-height: 7.2em; 
     resize: none;
     line-height: 1.4;
     padding: 0.4em;
@@ -156,43 +96,43 @@ textarea.chat-input {
     scrollbar-width: none;
     -ms-overflow-style: none;
     overflow-y: auto;
-    position: relative; /* For pseudo-element positioning */
+    position: relative; 
     border: none;
     background: none
 }
 
-/* Hide webkit scrollbar */
+
 textarea.chat-input::-webkit-scrollbar {
     display: none;
 }
 
-/* Top gradient for more content above */
+
 .chat-input.editor.flexrow::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    right: 0; /* Full width */
+    right: 0; 
     height: 24px;
     background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent);
     opacity: var(--top-gradient-opacity, 0);
-    pointer-events: none; /* Ensures clicks pass through the gradient */
-    z-index: 2; /* Make sure it's above the button */
+    pointer-events: none; 
+    z-index: 2; 
     transition: opacity 0.2s;
 }
 
-/* Bottom gradient for more content below */
+
 .chat-input.editor.flexrow::after {
     content: '';
     position: absolute;
     bottom: 0;
     left: 0;
-    right: 0; /* Full width */
+    right: 0; 
     height: 24px;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.3), transparent);
     opacity: var(--bottom-gradient-opacity, 0);
-    pointer-events: none; /* Ensures clicks pass through the gradient */
-    z-index: 2; /* Make sure it's above the button */
+    pointer-events: none; 
+    z-index: 2; 
     transition: opacity 0.2s;
 }
 
@@ -213,7 +153,7 @@ textarea.chat-input::-webkit-scrollbar {
     flex-grow: 1;
 }
 
-/* Message specific styling that Foundry doesn't cover */
+
 .foundry-im.message-timestamp {
     float: right;
     font-size: var(--font-size-11);
@@ -235,21 +175,21 @@ textarea.chat-input::-webkit-scrollbar {
     text-shadow: 1px 1px var(--color-shadow-dark);
 }
 
-/* Remove textarea's own focus styles */
+
 textarea.chat-input:focus {
   outline: none !important;
   box-shadow: none !important;
   border-color: transparent !important;
 }
 
-/* And add focus styling to parent div instead */
+
 .chat-input.editor.flexrow.focused {
   box-shadow: 0 0 5px var(--color-shadow-primary);
   border: 1px solid var(--color-border-highlight);
 }
 
 .foundry-im.chat-send {
-    flex: 0 0 64px;  /* Don't grow, don't shrink, stay at 64px */
+    flex: 0 0 64px;  
     cursor: pointer;
 }
 
@@ -286,7 +226,7 @@ textarea.chat-input:focus {
     overflow-x: auto;
 }
 
-/* Message styling */
+
 .foundry-im.message {
     margin-bottom: 8px;
     padding: 4px 8px;
@@ -307,7 +247,7 @@ textarea.chat-input:focus {
     color: var(--color-text-dark-secondary);
 }
 
-/* Remove background from the window-content section of the modal */
+
 .foundry-im.chat-modal .window-content {
   padding: 0;
   background: none;
@@ -318,7 +258,7 @@ textarea.chat-input:focus {
     display: flex;
     flex-direction: row;
     padding: 0;
-    overflow: hidden; /* Prevent container from expanding */
+    overflow: hidden; 
     --msg-top-gradient-opacity: 0;
     --msg-bottom-gradient-opacity: 0;
     position: relative;
@@ -346,7 +286,7 @@ textarea.chat-input:focus {
     display: none;
 }
 
-/* Sent vs. received message styling */
+
 .chat-message.message.current-user {
   background: beige;
   border-left: 3px solid var(--color-border-highlight-secondary, #4b8bf4);
@@ -357,7 +297,7 @@ textarea.chat-input:focus {
   background: rgba(0, 0, 0, 0.1);
 }
 
-/* Make messages look cleaner */
+
 .chat-message.message {
   position: relative;
   transition: box-shadow 0.2s;
@@ -371,7 +311,7 @@ textarea.chat-input:focus {
 #foundry-im-chat-modal .window-resizable-handle {
     border-radius: 0;
     border: none;
-    color: var(--color-text-dark)
+    color: var(--color-text-dark);
     overflow: hidden;
     width: 11px;
     height: 11px;
@@ -379,19 +319,19 @@ textarea.chat-input:focus {
     opacity: 0.7;
     background: transparent url('/ui/resize-handle.webp') no-repeat center / contain;
 }
-/* Hide the window resize handle */
+
 #foundry-im-chat-modal .window-resizable-handle > i{
 
     display: none;
 }
 
-/* Top fade gradient */
+
 .foundry-im.chat-messages-container::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 8px; /* Match border width */
-    right: 8px; /* Match border width */
+    left: 8px; 
+    right: 8px; 
     height: 20px;
     background: linear-gradient(to bottom, 
         rgba(0,0,0,var(--msg-top-gradient-opacity)), 
@@ -401,13 +341,13 @@ textarea.chat-input:focus {
     transition: opacity 0.2s ease;
 }
 
-/* Bottom fade gradient */
+
 .foundry-im.chat-messages-container::after {
     content: '';
     position: absolute;
     bottom: 0;
-    left: 8px; /* Match border width */
-    right: 8px; /* Match border width */
+    left: 8px; 
+    right: 8px; 
     height: 20px;
     background: linear-gradient(to top, 
         rgba(0,0,0,var(--msg-bottom-gradient-opacity)), 
