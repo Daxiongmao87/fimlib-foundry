@@ -3,7 +3,7 @@
  * @module ChatModal
  */
 
-import { MarkdownParser } from '../utils/MarkdownParser.js';
+import { MarkdownParser } from '../utils/markdown-parser.js';
 
 export class ChatModal extends FormApplication {
   /**
