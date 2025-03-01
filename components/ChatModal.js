@@ -23,7 +23,7 @@ export class ChatModal extends FormApplication {
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
       id: "foundry-im-chat-modal",
-      template: "modules/fimlib/src/templates/chat-modal.html",
+      template: "modules/fimlib/templates/chat-modal.html",
       title: "Chat",
       width: 300,
       height: 400,

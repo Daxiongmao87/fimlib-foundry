@@ -14,16 +14,16 @@
     }
   ],
   "esmodules": [
-    "src/main.js",
-    "src/components/ChatModal.js",
-    "src/components/TabManager.js"
+    "main.js",
+    "components/ChatModal.js",
+    "components/TabManager.js"
   ],
   "styles": [
-    "src/styles/chat-modal.css",
-    "src/styles/markdown.css"
+    "styles/chat-modal.css",
+    "styles/markdown.css"
   ],
   "templates": [
-    "src/templates/chat-modal.html"
+    "templates/chat-modal.html"
   ],
   "url": "https://github.com/yourusername/fimlib",
   "manifest": "https://raw.githubusercontent.com/yourusername/fimlib/main/module.json",
