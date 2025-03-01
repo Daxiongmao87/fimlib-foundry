@@ -7,9 +7,9 @@
  * multiple modules bundle FIMLib.
  */
 
-import { ChatModal } from './components/ChatModal.js';
-import { TabManager } from './components/TabManager.js';
-import { MarkdownParser } from './utils/MarkdownParser.js';
+import { ChatModal } from './components/chat-modal.js';
+import { TabManager } from './components/tab-manager.js';
+import { MarkdownParser } from './utils/markdown-parser.js';
 
 // Version number for comparison if needed
 const VERSION = '1.1.0';

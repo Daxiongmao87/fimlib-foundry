@@ -15,8 +15,8 @@
   ],
   "esmodules": [
     "main.js",
-    "components/ChatModal.js",
-    "components/TabManager.js"
+    "components/chat-modal.js",
+    "components/tab-manager.js"
   ],
   "styles": [
     "styles/chat-modal.css",
