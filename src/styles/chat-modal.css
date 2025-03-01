@@ -362,3 +362,24 @@ textarea.chat-input:focus {
   color: var(--color-text-dark-secondary);
   line-height: 1.2;
 }
+
+.message-copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #7a7971;
+  margin-left: 5px;
+  font-size: 0.8em;
+  padding: 2px 5px;
+  transition: all 0.2s ease;
+  border-radius: 3px;
+}
+
+.message-copy-btn:hover {
+  color: #4b4a44;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.message-copy-btn.copied {
+  color: #2e7d32;
+}

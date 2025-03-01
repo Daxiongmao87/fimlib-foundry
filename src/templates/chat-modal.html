@@ -26,6 +26,12 @@
                         {{#if ../showCornerText}}
                         <span class="message-corner-text">{{this.cornerText}}</span>
                         {{/if}}
+                        
+                        {{#unless this.isCurrentUser}}
+                        <button class="message-copy-btn" title="Copy message">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        {{/unless}}
                     </span>
                 </header>
                 <div class="message-content">

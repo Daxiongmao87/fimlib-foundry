@@ -19,7 +19,8 @@
     "src/components/TabManager.js"
   ],
   "styles": [
-    "src/styles/chat-modal.css"
+    "src/styles/chat-modal.css",
+    "src/styles/markdown.css"
   ],
   "templates": [
     "src/templates/chat-modal.html"

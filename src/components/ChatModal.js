@@ -3,6 +3,8 @@
  * @module ChatModal
  */
 
+import { MarkdownParser } from '../utils/MarkdownParser.js';
+
 export class ChatModal extends FormApplication {
   /**
    * Data store for messages and tabs
@@ -111,12 +113,17 @@ export class ChatModal extends FormApplication {
    */
   _onSendMessage(html) {
     const input = html.find('textarea.chat-input');
-    const message = input.val().trim();
+    const rawMessage = input.val().trim();
     
-    if (message) {
+    if (rawMessage) {
+      // Use the MarkdownParser to parse the message content
+      // If user is typing plain text, it will be wrapped in paragraphs
+      // If user is typing markdown, it will be converted to HTML
+      const formattedContent = MarkdownParser.parse(rawMessage);
+      
       ChatModal.data.messages.push({
         _id: randomID(),
-        content: message,
+        content: formattedContent,
         sender: game.user.name,
         timestamp: new Date().toISOString(),
         img: game.user.avatar || "icons/svg/mystery-man.svg",
@@ -239,6 +246,12 @@ export class ChatModal extends FormApplication {
    * @param {boolean} [render=true] - Whether to re-render the chat window
    */
   addMessage(message, render = true) {
+    // Process markdown if enabled and content is not already HTML
+    if (message.content) {
+      // Use the MarkdownParser to convert markdown to HTML
+      message.content = MarkdownParser.parse(message.content);
+    }
+    
     const formattedMessage = {
       _id: message._id || randomID(),
       content: message.content,
