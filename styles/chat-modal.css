@@ -383,3 +383,12 @@ textarea.chat-input:focus {
 .message-copy-btn.copied {
   color: #2e7d32;
 }
+
+.auxiliary-content-container {
+    background: url(/ui/parchment.jpg) repeat;
+    padding: 0px 8px;
+}
+
+.auxiliary-content-container:empty {
+    display: none;
+}
