@@ -244,6 +244,7 @@ export class ChatModal extends FormApplication {
    * @param {string} message.content - The message content
    * @param {string} message.sender - The sender's name
    * @param {boolean} [render=true] - Whether to re-render the chat window
+   * @returns {jQuery|null} - The newly added message element or null
    */
   addMessage(message, render = true) {
     // Process markdown if enabled and content is not already HTML
@@ -262,11 +263,73 @@ export class ChatModal extends FormApplication {
       subtitle: message.subtitle || ""
     };
     
+    // Add to data store
     ChatModal.data.messages.push(formattedMessage);
     
-    if (render) {
+    // Try to append directly to the DOM if possible to avoid full re-render
+    if (render && this.element && this.element.length) {
+      const messageList = this.element.find('.chat-messages.message-list');
+      
+      if (messageList.length) {
+        // Create the message HTML
+        const cssClass = formattedMessage.isCurrentUser ? 'current-user' : 'other-user';
+        const avatarHTML = this.options.showAvatars && formattedMessage.img ? 
+          `<a class="avatar"><img src="${formattedMessage.img}" alt="${formattedMessage.sender}"></a>` : '';
+        
+        const cornerText = this.options.showCornerText && formattedMessage.cornerText ? 
+          `<span class="message-corner-text">${formattedMessage.cornerText}</span>` : '';
+        
+        const copyButton = !formattedMessage.isCurrentUser ? 
+          `<button class="message-copy-btn" title="Copy message"><i class="fas fa-copy"></i></button>` : '';
+        
+        const subtitle = formattedMessage.subtitle ? 
+          `<span class="subtitle">${formattedMessage.subtitle}</span>` : '';
+        
+        // Build the message element
+        const messageHTML = `
+          <div class="chat-message message flexcol ${cssClass}" data-message-id="${formattedMessage._id}">
+            <header class="message-header flexrow">
+              <h4 class="message-sender">
+                ${avatarHTML}
+                <span class="name-stacked">
+                  <span class="title">${formattedMessage.sender}</span>
+                  ${subtitle}
+                </span>
+              </h4>
+              <span class="message-metadata">
+                ${cornerText}
+                ${copyButton}
+              </span>
+            </header>
+            <div class="message-content">
+              ${formattedMessage.content}
+            </div>
+          </div>
+        `;
+        
+        // Append directly to the message list
+        const newMessageElem = $(messageHTML);
+        messageList.append(newMessageElem);
+        
+        // Scroll to bottom
+        if (messageList[0]) {
+          messageList[0].scrollTop = messageList[0].scrollHeight;
+          this._updateMessageListGradients(messageList[0]);
+        }
+        
+        return newMessageElem;
+      } else {
+        // If we can't find the message list, do a full render
+        this.render();
+        return null;
+      }
+    } else if (render) {
+      // If no DOM element yet, do a full render
       this.render();
+      return null;
     }
+    
+    return null;
   }
 
   /**
